@@ -2,8 +2,12 @@
 import {parseEpub} from "@gxl/epub-parser";
 import Book from "../domain/book";
 
+export class InvalidFileError extends Error {
+}
+
 export class ExtractMetadataFromEpubResponse {
     book = null;
+    error = null;
 }
 
 export class ExtractMetadataFromEpubRequest {
@@ -16,20 +20,23 @@ export default class ExtractMetadataFromEpub {
     }
 
     async execute() {
+        const response = new ExtractMetadataFromEpubResponse();
         const fileBuffer = await this.request.file.toBuffer();
 
-        const parseResult = await parseEpub(fileBuffer);
+        try {
+            const parseResult = await parseEpub(fileBuffer);
 
-        const {info: {author, title}} = parseResult;
+            const {info: {author, title}} = parseResult;
 
-        const book = new Book();
+            const book = new Book();
 
-        book.author = author;
-        book.title = title;
+            book.author = author;
+            book.title = title;
 
-        const response = new ExtractMetadataFromEpubResponse();
-
-        response.book = book;
+            response.book = book;
+        } catch (e) {
+            response.error = new InvalidFileError();
+        }
 
         return response;
     }
