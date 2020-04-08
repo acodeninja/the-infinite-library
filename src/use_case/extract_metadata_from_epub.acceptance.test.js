@@ -18,7 +18,7 @@ const extractMetadata = async (fileStream) => {
 describe('extracting metadata from an epub file', () => {
     describe('extracting data from a valid epub file', () => {
         it('returns the expected metadata', async () => {
-            const file = createReadStream(resolve(__dirname, '../test/files/the-cask-of-amontillado.epub'));
+            const file = createReadStream(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub'));
             const response = await extractMetadata(file);
 
             expect(response.book.author).toBe('Edgar Allan Poe');
