@@ -6,7 +6,8 @@
   "author": "Lawrence <lawrence@acode.ninja>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint ./src --ext .js"
   },
   "jest": {
     "verbose": true,
@@ -17,6 +18,53 @@
       "<rootDir>/setupJest.js"
     ]
   },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es6": true,
+      "jest/globals": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:jest/recommended"
+    ],
+    "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+    },
+    "plugins": [
+      "babel",
+      "jest"
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+    },
+    "rules": {
+      "babel/semi": 1,
+      "indent": [
+        "error",
+        2
+      ],
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "semi": [
+        "error",
+        "always"
+      ],
+      "new-parens": [
+        "error",
+        "never"
+      ]
+    }
+  },
   "dependencies": {
     "@gxl/epub-parser": "^2.0.2"
   },
@@ -24,6 +72,10 @@
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-jest": "^23.8.2",
     "jest": "^25.2.7",
     "regenerator-runtime": "^0.13.5"
   }
