@@ -1,23 +1,41 @@
-import Book, {BookFile} from "./book";
+import Book, {BookFile} from './book';
 
-describe('domain book', () => {
-    it('instantiates with a null author', () => {
-        let book = new Book();
+describe('a book', () => {
+  it('instantiates with a null author', () => {
+    let book = new Book;
 
-        expect(book.author).toBeNull();
+    expect(book.author).toBeNull();
+  });
+
+  it('instantiates with a null title', () => {
+    let book = new Book;
+
+    expect(book.title).toBeNull();
+  });
+
+  it('instantiates with an empty set of files', () => {
+    let book = new Book;
+
+    expect(book.files).toStrictEqual([]);
+  });
+
+  describe('a book file', () => {
+    it('instantiates with a null file stream', () => {
+      let bookFile = new BookFile;
+
+      expect(bookFile.stream).toBeNull();
     });
 
-    it('instantiates with a null title', () => {
-        let book = new Book();
+    it('instantiates with a null type', () => {
+      let bookFile = new BookFile;
 
-        expect(book.title).toBeNull();
+      expect(bookFile.type).toBeNull();
     });
 
-    describe('a book file', () => {
-        it('instantiates with an empty file stream', () => {
-            let file = new BookFile();
+    it('instantiates with a null location', () => {
+      let bookFile = new BookFile;
 
-            expect(file.stream).toBeNull();
-        });
+      expect(bookFile.location).toBeNull();
     });
+  });
 });

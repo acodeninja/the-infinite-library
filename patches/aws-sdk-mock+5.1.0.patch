@@ -1,0 +1,24 @@
+diff --git a/node_modules/aws-sdk-mock/index.js b/node_modules/aws-sdk-mock/index.js
+index 7de7f6a..7e79073 100644
+--- a/node_modules/aws-sdk-mock/index.js
++++ b/node_modules/aws-sdk-mock/index.js
+@@ -18,6 +18,8 @@ var Readable = require('stream').Readable;
+ var AWS = {};
+ var services = {};
+ 
++AWS.services = services;
++
+ /**
+  * Sets the aws-sdk to be mocked.
+  */
+@@ -164,6 +166,10 @@ function mockServiceMethod(service, client, method, replace) {
+         return promise;
+       } : undefined,
+       createReadStream: function() {
++        if (typeof replace === 'function') {
++          return replace.apply(replace, userArgs.concat([callback]));
++        }
++
+         if (replace instanceof Readable) {
+           return replace;
+         } else {

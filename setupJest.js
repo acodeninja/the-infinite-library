@@ -1,1 +1,1 @@
-require("regenerator-runtime/runtime.js");
+require('regenerator-runtime/runtime.js');

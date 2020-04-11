@@ -1,43 +1,46 @@
+import {parseEpub} from '@gxl/epub-parser';
+import {BaseRequest, BaseResponse, BaseUseCase} from '../base';
 
-import {parseEpub} from "@gxl/epub-parser";
-import Book from "../domain/book";
-
-export class InvalidFileError extends Error {
+export class InvalidFileStreamError extends Error {
 }
 
-export class ExtractMetadataFromEpubResponse {
-    book = null;
-    error = null;
+export class NoFileStreamProvidedError extends Error {
+
 }
 
-export class ExtractMetadataFromEpubRequest {
+export class ExtractMetadataFromEpubResponse extends BaseResponse {
+    author = null;
+    title = null;
+}
+
+export class ExtractMetadataFromEpubRequest extends BaseRequest {
     file = null;
 }
 
-export default class ExtractMetadataFromEpub {
-    constructor(request) {
-        this.request = request;
+export default class ExtractMetadataFromEpub extends BaseUseCase {
+  async execute(request) {
+    const response = new ExtractMetadataFromEpubResponse;
+
+    try {
+      if (!request.file || !request.file.pipe) {
+        throw new NoFileStreamProvidedError;
+      }
+
+      const fileBuffer = await this.container.get('helper').toBuffer(request.file);
+      const parseResult = await parseEpub(fileBuffer);
+
+      const {info: {author, title}} = parseResult;
+
+      response.author = author;
+      response.title = title;
+    } catch (error) {
+      response.error = error;
+
+      if (error.message && error.message.indexOf('is this a zip file') !== -1) {
+        response.error = (new InvalidFileStreamError);
+      }
     }
 
-    async execute() {
-        const response = new ExtractMetadataFromEpubResponse();
-        const fileBuffer = await this.request.file.toBuffer();
-
-        try {
-            const parseResult = await parseEpub(fileBuffer);
-
-            const {info: {author, title}} = parseResult;
-
-            const book = new Book();
-
-            book.author = author;
-            book.title = title;
-
-            response.book = book;
-        } catch (e) {
-            response.error = new InvalidFileError();
-        }
-
-        return response;
-    }
+    return response;
+  }
 }
