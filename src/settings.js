@@ -12,6 +12,10 @@ export default class Settings {
       }
     }
 
+    setAll(settings) {
+      this.settings = settings;
+    }
+
     set(path, value) {
       set(this.settings, path, value);
     }

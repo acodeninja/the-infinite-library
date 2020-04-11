@@ -18,4 +18,16 @@ describe('settings', function () {
 
     expect(settings.get('test')).toBe('test');
   });
+
+  it('allows setting all values', function () {
+    const settings = new Settings;
+    settings.set('test', 'test');
+
+    settings.setAll({
+      foo: 'bar'
+    });
+
+    expect(settings.get('test')).toBeNull();
+    expect(settings.get('foo')).toBe('bar');
+  });
 });
