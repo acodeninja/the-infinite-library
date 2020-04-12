@@ -54,7 +54,7 @@ export default class BookGateway extends BaseGateway {
     try {
       const response = await (new AWS.DynamoDB).putItem({
         Item: itemFromBook(book),
-        TableName: this.container.get('settings').get('storage.books.data.table'),
+        TableName: await this.container.get('settings').get('storage.books.data.table'),
       }).promise();
 
       for await (let file of book.files) {
@@ -63,8 +63,8 @@ export default class BookGateway extends BaseGateway {
         Body = Body.pipe(new PassThrough);
 
         await (new AWS.S3).putObject({
-          Bucket: this.container.get('settings').get('storage.books.files.bucket'),
-          Key: `${this.container.get('settings').get('storage.books.files.prefix')}${location}`,
+          Bucket: await this.container.get('settings').get('storage.books.files.bucket'),
+          Key: `${await this.container.get('settings').get('storage.books.files.prefix')}/${location}`,
           Body,
         }).promise();
       }
@@ -83,7 +83,7 @@ export default class BookGateway extends BaseGateway {
         'Author': {S: author},
         'Title': {S: title}
       },
-      TableName: this.container.get('settings').get('storage.books.data.table'),
+      TableName: await this.container.get('settings').get('storage.books.data.table'),
     }).promise();
 
     if (!fetchedItem.Item) throw new BookNotFoundError;
@@ -92,8 +92,8 @@ export default class BookGateway extends BaseGateway {
 
     book.files = await Promise.all(book.files.map(async (file) => {
       file.stream = (new AWS.S3).getObject({
-        Bucket: this.container.get('settings').get('storage.books.files.bucket'),
-        Key: `${this.container.get('settings').get('storage.books.files.prefix')}${file.location}`
+        Bucket: await this.container.get('settings').get('storage.books.files.bucket'),
+        Key: `${await this.container.get('settings').get('storage.books.files.prefix')}${file.location}`
       }).createReadStream();
 
       return file;

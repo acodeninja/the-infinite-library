@@ -37,6 +37,29 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
     'S3.putObject': jest.fn(async () => {
 
     }),
+    'SSM.getParameter': jest.fn(async (params) => {
+      if (params.Name === 'the-infinite-library/test/settings') {
+        return {
+          Parameter: {
+            Name: params.Name,
+            Type: 'String',
+            Value: JSON.stringify({
+              storage: {
+                books: {
+                  data: {
+                    table: 'the-infinite-library-test-books',
+                  },
+                  files: {
+                    bucket: 'the-infinite-library-test-books',
+                    prefix: 'public/',
+                  },
+                },
+              },
+            })
+          }
+        };
+      }
+    })
   };
 
   let getMock = (path) => {

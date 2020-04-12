@@ -3,11 +3,13 @@ import Settings from './settings';
 import Helper from './helper';
 
 export class Container {
-    objects = {
-      'aws': AWS,
-      'helper': new Helper,
-      'settings': new Settings,
-    };
+    objects = {};
+
+    constructor() {
+      this.set('aws', AWS);
+      this.set('helper', new Helper);
+      this.set('settings', new Settings(this));
+    }
 
     get(path) {
       return this.objects[path];

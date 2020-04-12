@@ -5,9 +5,11 @@ import BookGateway, {bookFromItem, itemFromBook} from './book_gateway';
 import {addAWSMocksToContainer} from '../../test/doubles/aws_mocks';
 import {createReadStream} from 'fs';
 import {resolve} from 'path';
+process.env.APP_NAME = 'the-infinite-library';
+process.env.APP_STAGE = 'test';
 
 describe('creating a book gateway', () => {
-  it('accepts the given container', function () {
+  it('accepts the given container', async () => {
     const container = makeContainer();
     const testString = 'test string';
     const bookGateway = new BookGateway(container);
@@ -32,7 +34,7 @@ describe('conversion of a book to and from storage', () => {
     expect(book.title).toBe(testItem.Title.S);
   });
 
-  it('converts a book to a dynamodb item', function () {
+  it('converts a book to a dynamodb item', () => {
     const book = bookFromItem(testItem);
     const item = itemFromBook(book);
 
@@ -47,10 +49,6 @@ describe('fetching a book', () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container);
 
-      container.get('settings').set('storage.books.data.table', 'books-table');
-      container.get('settings').set('storage.books.files.bucket', 'books-bucket');
-      container.get('settings').set('storage.books.files.prefix', 'books-prefix/');
-
       const bookGateway = new BookGateway(container);
 
       const book = await bookGateway.fetch(
@@ -63,11 +61,11 @@ describe('fetching a book', () => {
           Author: {S: 'Edgar Allan Poe'},
           Title: {S: 'The Cask of Amontillado'}
         },
-        TableName: 'books-table',
+        TableName: 'the-infinite-library-test-books',
       }, expect.anything());
       expect(getMock('S3.getObject')).toHaveBeenCalledWith({
-        Key: expect.stringContaining('books-prefix/'),
-        Bucket: 'books-bucket',
+        Key: expect.stringContaining('public/'),
+        Bucket: 'the-infinite-library-test-books',
       }, expect.anything());
       expect(book).toBeInstanceOf(Book);
       expect(book.author).toBe('Edgar Allan Poe');
@@ -79,7 +77,7 @@ describe('fetching a book', () => {
 });
 
 describe('putting a new book', () => {
-  describe('with an author, title, and file', function () {
+  describe('with an author, title, and file', () => {
     it('puts the book to dynamo db', async () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container);

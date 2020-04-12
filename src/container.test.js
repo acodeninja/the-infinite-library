@@ -31,7 +31,7 @@ describe('container', function () {
 });
 
 describe('makeContainer', () => {
-  it('returns an instantiated container', () => {
+  it('returns an instantiated container', async () => {
     const container = makeContainer();
 
     expect(container).toBeInstanceOf(Container);

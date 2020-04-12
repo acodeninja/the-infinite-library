@@ -2,6 +2,8 @@ import HandleEPubUploadedToS3, {HandleEPubUploadedToS3Request} from './handle_an
 import {makeContainer} from '../container';
 import {addAWSMocksToContainer} from '../../test/doubles/aws_mocks';
 import {Readable} from 'stream';
+process.env.APP_NAME = 'the-infinite-library';
+process.env.APP_STAGE = 'test';
 
 const S3ObjectCreatedEvent = {
   Records: [{
@@ -30,10 +32,6 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
       'DynamoDB.getItem': jest.fn(async (params) => ({TableName: params.TableName})),
     });
 
-    container.get('settings').set('storage.books.data.table', 'books-table');
-    container.get('settings').set('storage.books.files.bucket', 'books-bucket');
-    container.get('settings').set('storage.books.files.prefix', 'books-prefix/');
-
     const response = await handleAnEPubUploadedToS3(container);
 
     expect(getMock('S3.getObject')).toHaveBeenCalledWith({
@@ -46,7 +44,7 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
         Author: {S: 'Edgar Allan Poe'},
         Title: {S: 'The Cask of Amontillado'},
       },
-      TableName: 'books-table'
+      TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
     expect(getMock('DynamoDB.putItem')).toHaveBeenCalledWith({
@@ -62,7 +60,7 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
           }]
         }
       },
-      TableName: 'books-table'
+      TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
     expect(response.responses.map(r => r.error)).toStrictEqual([null]);
@@ -71,10 +69,6 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
   it('a book that is already present in the library', async () => {
     const container = makeContainer();
     const getMock = addAWSMocksToContainer(container);
-
-    container.get('settings').set('storage.books.data.table', 'books-table');
-    container.get('settings').set('storage.books.files.bucket', 'books-bucket');
-    container.get('settings').set('storage.books.files.prefix', 'books-prefix/');
 
     const response = await handleAnEPubUploadedToS3(container);
 
@@ -88,7 +82,7 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
         Author: {S: 'Edgar Allan Poe'},
         Title: {S: 'The Cask of Amontillado'},
       },
-      TableName: 'books-table'
+      TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
     expect(getMock('DynamoDB.putItem')).toHaveBeenCalledWith({
@@ -109,13 +103,13 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
           }]
         }
       },
-      TableName: 'books-table'
+      TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
     expect(getMock('S3.putObject')).toHaveBeenCalledWith({
       Body: expect.any(Readable),
-      Bucket: 'books-bucket',
-      Key: expect.stringContaining('books-prefix/'),
+      Bucket: 'the-infinite-library-test-books',
+      Key: expect.stringContaining('public/'),
     }, expect.anything());
 
     expect(response.responses.map(r => r.error)).toStrictEqual([null]);

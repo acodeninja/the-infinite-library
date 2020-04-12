@@ -12,8 +12,9 @@ describe('base error', () => {
 });
 
 describe('base gateway', () => {
-  it('accepts a container', () => {
+  it('accepts a container', async () => {
     const container = makeContainer();
+
     container.set('test', 'test');
 
     const gateway = new BaseGateway(container);
@@ -31,7 +32,7 @@ describe('base response', () => {
 });
 
 describe('base use case', () => {
-  it('accepts a container', () => {
+  it('accepts a container', async () => {
     const container = makeContainer();
     container.set('test', 'test');
 

@@ -1,6 +1,9 @@
 import {addAWSMocksToContainer} from './test/doubles/aws_mocks';
-import {container, handleEPubUploadedToS3} from './handler';
+import {handleEPubUploadedToS3} from './handler';
 import {Readable} from 'stream';
+import {makeContainer} from './src/container';
+process.env.APP_NAME = 'the-infinite-library';
+process.env.APP_STAGE = 'test';
 
 const S3ObjectCreatedEvent = {
   Records: [{
@@ -13,20 +16,7 @@ const S3ObjectCreatedEvent = {
 
 describe('handling an epub file uploaded to an s3 bucket', () => {
   it('a new book that is not currently in the library', async () => {
-    container.get('settings').setAll({
-      storage: {
-        books: {
-          data: {
-            table: 'books-table',
-          },
-          files: {
-            bucket: 'books-bucket',
-            prefix: 'books-prefix/',
-          },
-        },
-      },
-    });
-
+    const container = makeContainer();
     const getMock = addAWSMocksToContainer(container, {
       'DynamoDB.getItem': jest.fn(async (params) => ({TableName: params.TableName})),
     });
@@ -45,7 +35,7 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
         Author: {S: 'Edgar Allan Poe'},
         Title: {S: 'The Cask of Amontillado'},
       },
-      TableName: 'books-table'
+      TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
     expect(getMock('DynamoDB.putItem')).toHaveBeenCalledWith({
@@ -61,13 +51,13 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
           }]
         }
       },
-      TableName: 'books-table'
+      TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
     expect(getMock('S3.putObject')).toHaveBeenCalledWith({
       Body: expect.any(Readable),
-      Bucket: 'books-bucket',
-      Key: expect.stringContaining('books-prefix/'),
+      Bucket: 'the-infinite-library-test-books',
+      Key: expect.stringContaining('public/'),
     }, expect.anything());
   });
 });
