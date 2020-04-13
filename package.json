@@ -8,14 +8,17 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint . --ext .js",
-    "postinstall": "patch-package"
+    "build": "webpack",
+    "deploy": "if [ ! -d \"./build\" ]; then yarn build; fi && terraform init && terraform apply",
+    "postinstall": "if [[ \"$NODE_ENV\" != \"production\" ]]; then patch-package; fi"
   },
   "engines": {
     "node": "12"
   },
   "jest": {
     "watchPathIgnorePatterns": [
-      "node_modules"
+      "node_modules",
+      "build"
     ],
     "setupFiles": [
       "<rootDir>/setupJest.js"
@@ -27,6 +30,9 @@
       "es6": true,
       "jest/globals": true
     },
+    "ignorePatterns": [
+      "build/*"
+    ],
     "extends": [
       "eslint:recommended",
       "plugin:jest/recommended"
@@ -85,12 +91,19 @@
     "@babel/preset-env": "^7.9.0",
     "aws-sdk-mock": "^5.1.0",
     "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "cli-progress": "^3.7.0",
+    "dockerode": "^3.2.0",
     "eslint": "^6.8.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-jest": "^23.8.2",
     "jest": "^25.2.7",
+    "node-loader": "^0.6.0",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
-    "regenerator-runtime": "^0.13.5"
+    "regenerator-runtime": "^0.13.5",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "zip-a-folder": "^0.0.12"
   }
 }
