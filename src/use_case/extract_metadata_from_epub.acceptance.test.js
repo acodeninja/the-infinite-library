@@ -1,10 +1,9 @@
-import {createReadStream} from 'fs';
+import {readFileSync} from 'fs';
 import {resolve} from 'path';
-import {Readable} from 'stream';
 import ExtractMetadataFromEpub, {
   ExtractMetadataFromEpubRequest,
   InvalidFileStreamError,
-  NoFileStreamProvidedError
+  NoFileBufferProvidedError
 } from './extract_metadata_from_epub';
 import {makeContainer} from '../container';
 
@@ -20,18 +19,26 @@ const extractMetadata = async (file) => {
 
 describe('extracting metadata from an epub file stream', () => {
   describe('extracting data from a valid epub file stream', () => {
-    it('returns the expected metadata', async () => {
-      const file = createReadStream(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub'));
+    it('returns the expected metadata for the cask of amontillado', async () => {
+      const file = readFileSync(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub'));
       const response = await extractMetadata(file);
 
       expect(response.author).toBe('Edgar Allan Poe');
       expect(response.title).toBe('The Cask of Amontillado');
     });
+
+    it('returns the expected metadata for aesop\'s fables', async () => {
+      const file = readFileSync(resolve(__dirname, '../../test/files/aesop.epub'));
+      const response = await extractMetadata(file);
+
+      expect(response.author).toBe('Aesop');
+      expect(response.title).toBe('Aesop\'s Fables');
+    });
   });
 
   describe('extracting data from an invalid epub file stream', () => {
     it('returns an error', async () => {
-      const file = Readable.from('not an epub file');
+      const file = Buffer.from('not an epub file');
       const response = await extractMetadata(file);
 
       expect(response.error).toBeInstanceOf(InvalidFileStreamError);
@@ -42,7 +49,7 @@ describe('extracting metadata from an epub file stream', () => {
     it('returns an error', async () => {
       const response = await extractMetadata(null);
 
-      expect(response.error).toBeInstanceOf(NoFileStreamProvidedError);
+      expect(response.error).toBeInstanceOf(NoFileBufferProvidedError);
     });
   });
 });

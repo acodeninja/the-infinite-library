@@ -1,6 +1,5 @@
 import {addAWSMocksToContainer} from './test/doubles/aws_mocks';
 import {handleEPubUploadedToS3} from './handler';
-import {Readable} from 'stream';
 import {makeContainer} from './src/container';
 process.env.APP_NAME = 'the-infinite-library';
 process.env.APP_STAGE = 'test';
@@ -54,8 +53,8 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
       TableName: 'the-infinite-library-test-books'
     }, expect.anything());
 
-    expect(getMock('S3.putObject')).toHaveBeenCalledWith({
-      Body: expect.any(Readable),
+    expect(getMock('S3.upload')).toHaveBeenCalledWith({
+      Body: expect.any(Buffer),
       Bucket: 'the-infinite-library-test-books',
       Key: expect.stringContaining('public/'),
     }, expect.anything());

@@ -1,4 +1,3 @@
-import {PassThrough} from 'stream';
 import ExtractMetadataFromEpub, {ExtractMetadataFromEpubRequest} from './extract_metadata_from_epub';
 import {BaseRequest, BaseResponse, BaseUseCase} from '../base';
 import BookGateway, {BookNotFoundError} from '../gateway/book_gateway';
@@ -25,22 +24,22 @@ export default class HandleEPubUploadedToS3 extends BaseUseCase {
       const recordResponse = new HandleEPubUploadedToS3RecordResponse;
 
       try {
-        const bookGateway = new BookGateway(this.container);
-        const s3Object = await (new AWS.S3).getObject({
-          Bucket: record.s3.bucket.name,
-          Key: record.s3.object.key
-        }).createReadStream();
+        let {bucket: {name: Bucket}, object: {key: Key}} = record.s3;
+        Key = Key.replace(/\+/g, ' ');
 
-        const extractMetadataStream = s3Object.pipe(new PassThrough);
-        const putObjectStream = extractMetadataStream.pipe(new PassThrough);
+        const bookGateway = new BookGateway(this.container);
+        const uploadedS3Object = await (new AWS.S3).getObject({
+          Bucket,
+          Key,
+        }).promise();
 
         const extractMetadataRequest = new ExtractMetadataFromEpubRequest;
+        extractMetadataRequest.file = uploadedS3Object.Body;
 
-        extractMetadataRequest.file = extractMetadataStream;
-
-        const {author, title, error: extractMetadataError} = await (new ExtractMetadataFromEpub(this.container))
+        const extractMetadataResponse = await (new ExtractMetadataFromEpub(this.container))
           .execute(extractMetadataRequest);
 
+        const {author, title, error: extractMetadataError} = extractMetadataResponse;
         if (extractMetadataError) throw extractMetadataError;
 
         let book = new Book;
@@ -62,11 +61,10 @@ export default class HandleEPubUploadedToS3 extends BaseUseCase {
         const bookFile = new BookFile;
 
         bookFile.type = 'epub';
-        bookFile.stream = putObjectStream;
+        bookFile.file = uploadedS3Object.Body;
         book.files.push(bookFile);
 
-        await bookGateway.put(book);
-
+        recordResponse.putResponse = await bookGateway.put(book);
       } catch (error) {
         recordResponse.error = error;
       }

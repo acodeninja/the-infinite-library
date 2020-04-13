@@ -14,7 +14,7 @@ export default class Settings {
       const AWS = this.container.get('aws');
 
       const paramStore = await (new AWS.SSM).getParameter({
-        Name: `${process.env.APP_NAME}/${process.env.APP_STAGE}/settings`
+        Name: `/${process.env.APP_NAME}/${process.env.APP_STAGE}/settings`
       }).promise();
 
       const settings = JSON.parse(paramStore.Parameter.Value);

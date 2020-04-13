@@ -1,9 +1,8 @@
-import {Readable} from 'stream';
 import {makeContainer} from '../container';
 import Book, {BookFile} from '../domain/book';
 import BookGateway, {bookFromItem, itemFromBook} from './book_gateway';
 import {addAWSMocksToContainer} from '../../test/doubles/aws_mocks';
-import {createReadStream} from 'fs';
+import {readFileSync} from 'fs';
 import {resolve} from 'path';
 process.env.APP_NAME = 'the-infinite-library';
 process.env.APP_STAGE = 'test';
@@ -70,8 +69,7 @@ describe('fetching a book', () => {
       expect(book).toBeInstanceOf(Book);
       expect(book.author).toBe('Edgar Allan Poe');
       expect(book.title).toBe('The Cask of Amontillado');
-      expect(book.files.map(f => f.stream)[0]).toBeInstanceOf(Readable);
-      expect(book.files.map(f => f.stream)[0].readable).toBeTruthy();
+      expect(book.files.map(f => f.file)[0].Body).toBeInstanceOf(Buffer);
     });
   });
 });
@@ -81,10 +79,6 @@ describe('putting a new book', () => {
     it('puts the book to dynamo db', async () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container);
-
-      container.get('settings').set('storage.books.data.table', 'books-table');
-      container.get('settings').set('storage.books.files.bucket', 'books-bucket');
-      container.get('settings').set('storage.books.files.prefix', 'books-prefix/');
 
       const bookGateway = new BookGateway(container);
 
@@ -97,7 +91,7 @@ describe('putting a new book', () => {
 
       bookFile.location = 'test-file-path';
       bookFile.type = 'epub';
-      bookFile.stream = createReadStream(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub'));
+      bookFile.file = readFileSync(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub'));
       book.files = [bookFile];
 
       const response = await bookGateway.put(book);
@@ -115,13 +109,13 @@ describe('putting a new book', () => {
             }]
           }
         },
-        TableName: 'books-table',
+        TableName: 'the-infinite-library-test-books',
       }, expect.anything());
 
-      expect(getMock('S3.putObject')).toHaveBeenCalledWith({
-        Body: expect.any(Readable),
-        Bucket: 'books-bucket',
-        Key: expect.stringContaining('books-prefix/'),
+      expect(getMock('S3.upload')).toHaveBeenCalledWith({
+        Body: expect.any(Buffer),
+        Bucket: 'the-infinite-library-test-books',
+        Key: expect.stringContaining('public/'),
       }, expect.anything());
       expect(response).toBeTruthy();
     });

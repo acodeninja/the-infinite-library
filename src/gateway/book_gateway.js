@@ -1,5 +1,4 @@
 import {v4 as uuid} from 'uuid';
-import {PassThrough} from 'stream';
 import Book, {BookFile} from '../domain/book';
 import {BaseError, BaseGateway} from '../base';
 
@@ -52,24 +51,27 @@ export default class BookGateway extends BaseGateway {
     const AWS = this.container.get('aws');
 
     try {
-      const response = await (new AWS.DynamoDB).putItem({
-        Item: itemFromBook(book),
-        TableName: await this.container.get('settings').get('storage.books.data.table'),
-      }).promise();
+      for (let file of book.files) {
+        if (!file.location) {
+          file.location = uuid();
+        }
+        let {location, file: Body} = file;
 
-      for await (let file of book.files) {
-        let {location, stream: Body} = file;
-
-        Body = Body.pipe(new PassThrough);
-
-        await (new AWS.S3).putObject({
+        await (new AWS.S3).upload({
           Bucket: await this.container.get('settings').get('storage.books.files.bucket'),
-          Key: `${await this.container.get('settings').get('storage.books.files.prefix')}/${location}`,
+          Key: `${await this.container.get('settings').get('storage.books.files.prefix')}${location}`,
           Body,
         }).promise();
       }
 
-      return response;
+      let Item = itemFromBook(book);
+
+      await (new AWS.DynamoDB).putItem({
+        Item,
+        TableName: await this.container.get('settings').get('storage.books.data.table'),
+      }).promise();
+
+      return true;
     } catch (e) {
       return e;
     }
@@ -91,10 +93,10 @@ export default class BookGateway extends BaseGateway {
     const book = bookFromItem(fetchedItem.Item);
 
     book.files = await Promise.all(book.files.map(async (file) => {
-      file.stream = (new AWS.S3).getObject({
+      file.file = await (new AWS.S3).getObject({
         Bucket: await this.container.get('settings').get('storage.books.files.bucket'),
         Key: `${await this.container.get('settings').get('storage.books.files.prefix')}${file.location}`
-      }).createReadStream();
+      }).promise();
 
       return file;
     }));

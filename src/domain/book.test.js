@@ -20,10 +20,10 @@ describe('a book', () => {
   });
 
   describe('a book file', () => {
-    it('instantiates with a null file stream', () => {
+    it('instantiates with a null file buffer', () => {
       let bookFile = new BookFile;
 
-      expect(bookFile.stream).toBeNull();
+      expect(bookFile.file).toBeNull();
     });
 
     it('instantiates with a null type', () => {

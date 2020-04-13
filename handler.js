@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime.js';
 import {makeContainer} from './src/container';
 import HandleEPubUploadedToS3, {HandleEPubUploadedToS3Request} from './src/use_case/handle_an_epub_uploaded_to_s3';
 

@@ -4,7 +4,7 @@ import {BaseRequest, BaseResponse, BaseUseCase} from '../base';
 export class InvalidFileStreamError extends Error {
 }
 
-export class NoFileStreamProvidedError extends Error {
+export class NoFileBufferProvidedError extends Error {
 
 }
 
@@ -22,12 +22,11 @@ export default class ExtractMetadataFromEpub extends BaseUseCase {
     const response = new ExtractMetadataFromEpubResponse;
 
     try {
-      if (!request.file || !request.file.pipe) {
-        throw new NoFileStreamProvidedError;
+      if (!request.file) {
+        throw new NoFileBufferProvidedError;
       }
 
-      const fileBuffer = await this.container.get('helper').toBuffer(request.file);
-      const parseResult = await parseEpub(fileBuffer);
+      const parseResult = await parseEpub(request.file);
 
       const {info: {author, title}} = parseResult;
 

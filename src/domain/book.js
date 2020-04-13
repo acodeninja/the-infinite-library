@@ -3,8 +3,8 @@ export class BookFile {
     type = null;
     /** @type {string} */
     location = null;
-    /** @type {Readable} */
-    stream = null;
+    /** @type {Buffer} */
+    file = null;
 }
 
 export default class Book {

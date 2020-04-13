@@ -31,7 +31,7 @@ describe('settings', function () {
 
     expect(await settings.get('test')).toBe('test');
     expect(getMock('SSM.getParameter')).toHaveBeenCalledWith({
-      Name: 'the-infinite-library/test/settings'
+      Name: '/the-infinite-library/test/settings'
     }, expect.any(Function));
   });
 

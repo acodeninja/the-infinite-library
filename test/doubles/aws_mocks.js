@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import AWSMock from 'aws-sdk-mock';
 import {v4 as uuid} from 'uuid';
-import {createReadStream} from 'fs';
+import {readFileSync} from 'fs';
 import {resolve} from 'path';
 
 export const addAWSMocksToContainer = (container, customMocks = {}) => {
@@ -31,14 +31,25 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
         }
       });
     }),
-    'S3.getObject': jest.fn(() =>
-      createReadStream(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub'))
-    ),
+    'S3.getObject': jest.fn(async () => ({
+      AcceptRanges: 'bytes',
+      Body: readFileSync(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub')),
+      ContentLength: 3191,
+      ContentType: 'image/jpeg',
+      ETag: '6805f2cfc46c0f04559748bb039d69ae',
+      Metadata: {
+      },
+      TagCount: 2,
+      VersionId: 'null'
+    })),
     'S3.putObject': jest.fn(async () => {
 
     }),
+    'S3.upload': jest.fn(async () => {
+
+    }),
     'SSM.getParameter': jest.fn(async (params) => {
-      if (params.Name === 'the-infinite-library/test/settings') {
+      if (params.Name === '/the-infinite-library/test/settings') {
         return {
           Parameter: {
             Name: params.Name,
