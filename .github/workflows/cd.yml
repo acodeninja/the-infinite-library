@@ -31,5 +31,4 @@ jobs:
         with:
           node-version: 12.x
       - run: yarn install
-      - run: yarn lint
-      - run: terraform fmt -check -recursive
+      - run: yarn build
