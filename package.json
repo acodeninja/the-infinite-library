@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js",
     "build": "webpack",
     "deploy": "if [ ! -d \"./build\" ]; then yarn build; fi && terraform init && terraform apply",
-    "postinstall": "if [ ! -z \"$(which patch-package)\" ]; then patch-package; fi"
+    "postinstall": "patch-package"
   },
   "engines": {
     "node": "12"

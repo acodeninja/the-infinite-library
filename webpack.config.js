@@ -84,7 +84,7 @@ class PackageForDeployment {
         [
           'bash',
           '-c',
-          'npm install --global yarn && yarn install --production'
+          'npm install --global yarn && yarn global add patch-package && yarn install --production'
         ],
         process.stdout,
         {

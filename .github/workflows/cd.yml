@@ -9,6 +9,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - run: yarn global add patch-package
       - run: yarn install
       - run: yarn test
   lint:
@@ -19,16 +20,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - run: yarn global add patch-package
       - run: yarn install
       - run: yarn lint
       - run: terraform fmt -check -recursive
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup nodejs 12.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-      - run: yarn install
-      - run: yarn build
