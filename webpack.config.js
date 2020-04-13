@@ -1,3 +1,4 @@
+/* eslint no-console: "off" */
 const {copyFileSync, mkdirSync, readdirSync, existsSync, rmdirSync} = require('fs');
 const {resolve} = require('path');
 const {BannerPlugin, IgnorePlugin} = require('webpack');
@@ -30,6 +31,7 @@ class PackageForDeployment {
   dockerPull() {
     return new Promise((res) => {
       docker.pull('lambci/lambda:build-nodejs12.x', (err, stream) => {
+        console.log('-> pulling lambci docker image');
         const layers = {};
         const progressBars = new cliProgress.MultiBar({
           clearOnComplete: false,
@@ -76,6 +78,7 @@ class PackageForDeployment {
 
   installDependencies() {
     return new Promise((res) => {
+      console.log('-> running build inside lambci image');
       docker.run(
         'lambci/lambda:build-nodejs12.x',
         [
@@ -106,6 +109,7 @@ class PackageForDeployment {
   }
 
   async packageHandler() {
+    console.log('-> packaging application');
     await zip(buildTempDir, resolve(__dirname, 'build', 'handler.zip'));
   }
 
