@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "allow_reading_uploads_bucket" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:*"
+      "s3:GetObject",
     ]
     resources = ["${aws_s3_bucket.uploads.arn}/*", aws_s3_bucket.uploads.arn]
   }
@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "allow_writing_uploads_bucket" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:*",
+      "s3:PutObject",
     ]
     resources = ["${aws_s3_bucket.uploads.arn}/*", aws_s3_bucket.uploads.arn]
   }
@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "allow_reading_books_bucket" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:*"
+      "s3:GetObject",
     ]
     resources = ["${aws_s3_bucket.books.arn}/*", aws_s3_bucket.books.arn]
   }
@@ -70,7 +70,7 @@ data "aws_iam_policy_document" "allow_writing_books_bucket" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:*",
+      "s3:PutObject",
     ]
     resources = ["${aws_s3_bucket.books.arn}/*", aws_s3_bucket.books.arn]
   }
