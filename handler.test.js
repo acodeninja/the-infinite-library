@@ -59,4 +59,36 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
       Key: expect.stringContaining('public/'),
     }, expect.anything());
   });
+
+  it('a new book that is not a valid file', async () => {
+    const container = makeContainer();
+    const getMock = addAWSMocksToContainer(container, {
+      'S3.getObject': jest.fn(async () => ({
+        AcceptRanges: 'bytes',
+        Body: Buffer.from('not a valid epub file'),
+        ContentLength: 3191,
+        ContentType: 'application/epub+zip',
+        ETag: '6805f2cfc46c0f04559748bb039d69ae',
+        Metadata: {
+        },
+        TagCount: 2,
+        VersionId: 'null'
+      })),
+      'DynamoDB.getItem': jest.fn(async (params) => ({TableName: params.TableName})),
+    });
+
+    let response = {};
+
+    await expect(handleEPubUploadedToS3(S3ObjectCreatedEvent))
+        .rejects.toStrictEqual([expect.any(Error)]);
+
+    expect(getMock('S3.getObject')).toHaveBeenCalledWith({
+      Bucket: 'upload-bucket',
+      Key: 'test-file.epub'
+    }, expect.anything());
+
+    expect(getMock('DynamoDB.getItem')).not.toHaveBeenCalled();
+    expect(getMock('DynamoDB.putItem')).not.toHaveBeenCalled();
+    expect(getMock('S3.upload')).not.toHaveBeenCalled();
+  });
 });

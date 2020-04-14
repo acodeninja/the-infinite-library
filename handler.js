@@ -9,5 +9,14 @@ export const handleEPubUploadedToS3 = async (event) => {
 
   request.records = event.Records;
 
-  return await (new HandleEPubUploadedToS3(container)).execute(request);
+  const response = await (new HandleEPubUploadedToS3(container)).execute(request);
+
+  if (
+      Array.isArray(response.error) &&
+      !!response.error.filter(e => !!e).length
+  ) {
+    throw response.error;
+  }
+
+  return response;
 };
