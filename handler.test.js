@@ -77,10 +77,8 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
       'DynamoDB.getItem': jest.fn(async (params) => ({TableName: params.TableName})),
     });
 
-    let response = {};
-
     await expect(handleEPubUploadedToS3(S3ObjectCreatedEvent))
-        .rejects.toStrictEqual([expect.any(Error)]);
+      .rejects.toStrictEqual([expect.any(Error)]);
 
     expect(getMock('S3.getObject')).toHaveBeenCalledWith({
       Bucket: 'upload-bucket',
