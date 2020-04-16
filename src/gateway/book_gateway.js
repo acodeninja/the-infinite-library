@@ -103,4 +103,38 @@ export default class BookGateway extends BaseGateway {
 
     return book;
   }
+
+  async query() {
+    const AWS = this.container.get('aws');
+    let results = [];
+    let hasRecordsLeft = true;
+
+    const getAllBooks = async (params) => await (new AWS.DynamoDB).query({
+      ...params,
+      TableName: await this.container.get('settings').get('storage.books.data.table'),
+    }).promise();
+
+    let params = {};
+
+    while (hasRecordsLeft) {
+      if (results.length > 0 && !params.ExclusiveStartKey) {
+        hasRecordsLeft = false;
+        continue;
+      }
+
+      let tempResults = await getAllBooks(params);
+
+      results = results.concat(tempResults.Items);
+
+      if (tempResults.LastEvaluatedKey) {
+        params.ExclusiveStartKey = tempResults.LastEvaluatedKey;
+      } else {
+        delete params.ExclusiveStartKey;
+      }
+    }
+
+    return {
+      books: results.map(item => bookFromItem(item)),
+    };
+  }
 }

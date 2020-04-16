@@ -31,6 +31,53 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
         }
       });
     }),
+    'DynamoDB.query': jest.fn(async () => ({
+      Items: [{
+        Author: {S: 'V. Anton Spraul'},
+        Title: {S: 'Think Like a Programmer'},
+        Files: {
+          L: [{
+            M: {
+              Type: {S: 'epub'},
+              Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+            }
+          }]
+        }
+      }, {
+        Author: {S: 'Norman Matloff'},
+        Title: {S: 'Art of R Programming'},
+        Files: {
+          L: [{
+            M: {
+              Type: {S: 'epub'},
+              Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+            }
+          }]
+        }
+      }, {
+        Author: {S: 'Orson Scott Card'},
+        Title: {S: 'Children of the Mind'},
+        Files: {
+          L: [{
+            M: {
+              Type: {S: 'epub'},
+              Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+            }
+          }]
+        }
+      }, {
+        Author: {S: 'Orson Scott Card'},
+        Title: {S: 'Seventh Son'},
+        Files: {
+          L: [{
+            M: {
+              Type: {S: 'epub'},
+              Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+            }
+          }]
+        }
+      }]
+    })),
     'S3.getObject': jest.fn(async () => ({
       AcceptRanges: 'bytes',
       Body: readFileSync(resolve(__dirname, '../../test/files/the-cask-of-amontillado.epub')),

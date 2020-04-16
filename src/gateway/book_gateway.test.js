@@ -4,6 +4,7 @@ import BookGateway, {bookFromItem, itemFromBook} from './book_gateway';
 import {addAWSMocksToContainer} from '../../test/doubles/aws_mocks';
 import {readFileSync} from 'fs';
 import {resolve} from 'path';
+
 process.env.APP_NAME = 'the-infinite-library';
 process.env.APP_STAGE = 'test';
 
@@ -30,6 +31,7 @@ describe('conversion of a book to and from storage', () => {
     const book = bookFromItem(testItem);
 
     expect(book.author).toBe(testItem.Author.S);
+
     expect(book.title).toBe(testItem.Title.S);
   });
 
@@ -38,6 +40,7 @@ describe('conversion of a book to and from storage', () => {
     const item = itemFromBook(book);
 
     expect(item.Author.S).toBe(testItem.Author.S);
+
     expect(item.Title.S).toBe(testItem.Title.S);
   });
 });
@@ -62,13 +65,18 @@ describe('fetching a book', () => {
         },
         TableName: 'the-infinite-library-test-books',
       }, expect.anything());
+
       expect(getMock('S3.getObject')).toHaveBeenCalledWith({
         Key: expect.stringContaining('public/'),
         Bucket: 'the-infinite-library-test-books',
       }, expect.anything());
+
       expect(book).toBeInstanceOf(Book);
+
       expect(book.author).toBe('Edgar Allan Poe');
+
       expect(book.title).toBe('The Cask of Amontillado');
+
       expect(book.files.map(f => f.file)[0].Body).toBeInstanceOf(Buffer);
     });
   });
@@ -117,7 +125,118 @@ describe('putting a new book', () => {
         Bucket: 'the-infinite-library-test-books',
         Key: expect.stringContaining('public/'),
       }, expect.anything());
+
       expect(response).toBeTruthy();
+    });
+  });
+});
+
+describe('querying books', () => {
+  describe('getting all books in the library', () => {
+    it('returns the right number of books', async () => {
+      const container = makeContainer();
+      const getMock = addAWSMocksToContainer(container);
+
+      const bookGateway = new BookGateway(container);
+
+      const results = await bookGateway.query();
+
+      expect(getMock('DynamoDB.query')).toHaveBeenCalledWith({
+        TableName: 'the-infinite-library-test-books'
+      }, expect.any(Function));
+
+      expect(results).toHaveProperty('books', expect.any(Array));
+
+      expect(results.books.length).toBe(4);
+
+      expect(results.books).toStrictEqual([
+        expect.any(Book), expect.any(Book), expect.any(Book), expect.any(Book)
+      ]);
+    });
+  });
+
+  describe('getting all books in the library where there are more than 1mb in records', () => {
+    it('returns the right number of books', async () => {
+      const container = makeContainer();
+      const getMock = addAWSMocksToContainer(container, {
+        'DynamoDB.query': jest.fn(async (filter) => {
+          const results = {
+            Items: [{
+              Author: {S: 'V. Anton Spraul'},
+              Title: {S: 'Think Like a Programmer'},
+              Files: {
+                L: [{
+                  M: {
+                    Type: {S: 'epub'},
+                    Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+                  }
+                }]
+              }
+            }, {
+              Author: {S: 'Norman Matloff'},
+              Title: {S: 'Art of R Programming'},
+              Files: {
+                L: [{
+                  M: {
+                    Type: {S: 'epub'},
+                    Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+                  }
+                }]
+              }
+            }]
+          };
+
+          if (!filter.ExclusiveStartKey) {
+            results.LastEvaluatedKey = {};
+            results.Items = [{
+              Author: {S: 'Orson Scott Card'},
+              Title: {S: 'Children of the Mind'},
+              Files: {
+                L: [{
+                  M: {
+                    Type: {S: 'epub'},
+                    Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+                  }
+                }]
+              }
+            }, {
+              Author: {S: 'Orson Scott Card'},
+              Title: {S: 'Seventh Son'},
+              Files: {
+                L: [{
+                  M: {
+                    Type: {S: 'epub'},
+                    Location: {S: '1292d5d1-68e8-4938-9ec7-23aa3681f6eb'}
+                  }
+                }]
+              }
+            }];
+          }
+
+          return results;
+        }),
+      });
+
+      const bookGateway = new BookGateway(container);
+
+      const results = await bookGateway.query();
+
+      expect(getMock('DynamoDB.query')).toHaveBeenNthCalledWith(1,{
+        TableName: 'the-infinite-library-test-books'
+      }, expect.any(Function));
+
+      expect(getMock('DynamoDB.query')).toHaveBeenNthCalledWith(2, {
+        ExclusiveStartKey: {},
+        TableName: 'the-infinite-library-test-books'
+      }, expect.any(Function));
+
+      expect(results).toHaveProperty('books', expect.any(Array));
+
+      expect(results.books.length).toBe(4);
+
+      expect(results.books).toStrictEqual([
+        expect.any(Book), expect.any(Book), expect.any(Book), expect.any(Book)
+      ]);
     });
   });
 });
