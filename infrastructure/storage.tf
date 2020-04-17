@@ -1,3 +1,42 @@
+resource "aws_s3_bucket" "data" {
+  bucket = "${local.kebab-prefix}-data"
+
+  tags = {
+    Name  = var.name
+    Stage = var.stage
+  }
+}
+
+resource "aws_iam_policy" "allow_reading_data_bucket" {
+  name   = "${local.kebab-prefix}-${var.name}-data-bucket-read"
+  policy = data.aws_iam_policy_document.allow_reading_data_bucket.json
+}
+
+data "aws_iam_policy_document" "allow_reading_data_bucket" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+    ]
+    resources = ["${aws_s3_bucket.data.arn}/*", aws_s3_bucket.data.arn]
+  }
+}
+
+resource "aws_iam_policy" "allow_writing_data_bucket" {
+  name   = "${local.kebab-prefix}-${var.name}-data-bucket-write"
+  policy = data.aws_iam_policy_document.allow_writing_data_bucket.json
+}
+
+data "aws_iam_policy_document" "allow_writing_data_bucket" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+    ]
+    resources = ["${aws_s3_bucket.data.arn}/*", aws_s3_bucket.data.arn]
+  }
+}
+
 resource "aws_s3_bucket" "uploads" {
   bucket = "${local.kebab-prefix}-uploads"
 

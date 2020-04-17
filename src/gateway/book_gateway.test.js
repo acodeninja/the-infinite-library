@@ -133,7 +133,7 @@ describe('putting a new book', () => {
 
 describe('querying books', () => {
   describe('getting all books in the library', () => {
-    it('returns the right number of books', async () => {
+    it('returns the books', async () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container);
 
@@ -147,11 +147,31 @@ describe('querying books', () => {
 
       expect(results).toHaveProperty('books', expect.any(Array));
 
-      expect(results.books.length).toBe(4);
-
       expect(results.books).toStrictEqual([
         expect.any(Book), expect.any(Book), expect.any(Book), expect.any(Book)
       ]);
+    });
+  });
+
+  describe('getting all books in the library when the library is empty', () => {
+    it('returns the right number of books', async () => {
+      const container = makeContainer();
+      const getMock = addAWSMocksToContainer(container, {
+        'DynamoDB.query': jest.fn(async (params) => ({
+          Items: [],
+          TableName: params.TableName,
+        })),
+      });
+
+      const bookGateway = new BookGateway(container);
+
+      const results = await bookGateway.query();
+
+      expect(getMock('DynamoDB.query')).toHaveBeenCalledWith({
+        TableName: 'the-infinite-library-test-books'
+      }, expect.any(Function));
+
+      expect(results).toHaveProperty('books', []);
     });
   });
 

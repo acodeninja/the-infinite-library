@@ -117,11 +117,6 @@ export default class BookGateway extends BaseGateway {
     let params = {};
 
     while (hasRecordsLeft) {
-      if (results.length > 0 && !params.ExclusiveStartKey) {
-        hasRecordsLeft = false;
-        continue;
-      }
-
       let tempResults = await getAllBooks(params);
 
       results = results.concat(tempResults.Items);
@@ -130,6 +125,7 @@ export default class BookGateway extends BaseGateway {
         params.ExclusiveStartKey = tempResults.LastEvaluatedKey;
       } else {
         delete params.ExclusiveStartKey;
+        hasRecordsLeft = false;
       }
     }
 

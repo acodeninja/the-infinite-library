@@ -103,6 +103,12 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
             Type: 'String',
             Value: JSON.stringify({
               storage: {
+                data: {
+                  books: {
+                    bucket: 'the-infinite-library-test-data',
+                    key: 'public/data/books.json'
+                  }
+                },
                 books: {
                   data: {
                     table: 'the-infinite-library-test-books',

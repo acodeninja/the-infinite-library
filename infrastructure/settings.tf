@@ -3,6 +3,12 @@ resource "aws_ssm_parameter" "settings" {
   type = "String"
   value = jsonencode({
     storage = {
+      data = {
+        books = {
+          bucket = aws_s3_bucket.data.bucket
+          key    = "public/data/books.json"
+        }
+      }
       books = {
         data = {
           table = aws_dynamodb_table.books.name
