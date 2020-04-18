@@ -139,9 +139,9 @@ describe('querying books', () => {
 
       const bookGateway = new BookGateway(container);
 
-      const results = await bookGateway.query();
+      const results = await bookGateway.scan();
 
-      expect(getMock('DynamoDB.query')).toHaveBeenCalledWith({
+      expect(getMock('DynamoDB.scan')).toHaveBeenCalledWith({
         TableName: 'the-infinite-library-test-books'
       }, expect.any(Function));
 
@@ -157,7 +157,7 @@ describe('querying books', () => {
     it('returns the right number of books', async () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container, {
-        'DynamoDB.query': jest.fn(async (params) => ({
+        'DynamoDB.scan': jest.fn(async (params) => ({
           Items: [],
           TableName: params.TableName,
         })),
@@ -165,9 +165,9 @@ describe('querying books', () => {
 
       const bookGateway = new BookGateway(container);
 
-      const results = await bookGateway.query();
+      const results = await bookGateway.scan();
 
-      expect(getMock('DynamoDB.query')).toHaveBeenCalledWith({
+      expect(getMock('DynamoDB.scan')).toHaveBeenCalledWith({
         TableName: 'the-infinite-library-test-books'
       }, expect.any(Function));
 
@@ -179,7 +179,7 @@ describe('querying books', () => {
     it('returns the right number of books', async () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container, {
-        'DynamoDB.query': jest.fn(async (filter) => {
+        'DynamoDB.scan': jest.fn(async (filter) => {
           const results = {
             Items: [{
               Author: {S: 'V. Anton Spraul'},
@@ -239,13 +239,13 @@ describe('querying books', () => {
 
       const bookGateway = new BookGateway(container);
 
-      const results = await bookGateway.query();
+      const results = await bookGateway.scan();
 
-      expect(getMock('DynamoDB.query')).toHaveBeenNthCalledWith(1,{
+      expect(getMock('DynamoDB.scan')).toHaveBeenNthCalledWith(1,{
         TableName: 'the-infinite-library-test-books'
       }, expect.any(Function));
 
-      expect(getMock('DynamoDB.query')).toHaveBeenNthCalledWith(2, {
+      expect(getMock('DynamoDB.scan')).toHaveBeenNthCalledWith(2, {
         ExclusiveStartKey: {},
         TableName: 'the-infinite-library-test-books'
       }, expect.any(Function));

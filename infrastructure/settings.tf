@@ -4,7 +4,7 @@ resource "aws_ssm_parameter" "settings" {
   value = jsonencode({
     storage = {
       public = {
-        bucket  = aws_s3_bucket.data.bucket
+        bucket  = aws_s3_bucket.public.bucket
         authors = "public/data/authors.json"
         books   = "public/data/books.json"
       }

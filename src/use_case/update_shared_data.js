@@ -11,21 +11,27 @@ export default class UpdateSharedBooksData extends BaseUseCase {
     const bookGateway = new BookGateway(this.container);
     const response = new UpdateSharedBooksDataResponse;
 
-    const {books} = await bookGateway.query();
-    const authors = this.booksToAuthors(books);
-    const lastUpdated = Math.round(Date.now() / 1000);
+    try {
+      const {books} = await bookGateway.scan();
+      const authors = this.booksToAuthors(books);
+      const lastUpdated = Math.round(Date.now() / 1000);
 
-    await (new AWS.S3).putObject({
-      Bucket: await this.container.get('settings').get('storage.data.bucket'),
-      Key: await this.container.get('settings').get('storage.data.books'),
-      Body: Buffer.from(JSON.stringify({books, lastUpdated})),
-    }).promise();
+      await (new AWS.S3).putObject({
+        Bucket: await this.container.get('settings').get('storage.public.bucket'),
+        Key: await this.container.get('settings').get('storage.public.books'),
+        Body: Buffer.from(JSON.stringify({books, lastUpdated})),
+      }).promise();
 
-    await (new AWS.S3).putObject({
-      Bucket: await this.container.get('settings').get('storage.data.bucket'),
-      Key: await this.container.get('settings').get('storage.data.authors'),
-      Body: Buffer.from(JSON.stringify({authors, lastUpdated})),
-    }).promise();
+      await (new AWS.S3).putObject({
+        Bucket: await this.container.get('settings').get('storage.public.bucket'),
+        Key: await this.container.get('settings').get('storage.public.authors'),
+        Body: Buffer.from(JSON.stringify({authors, lastUpdated})),
+      }).promise();
+
+    } catch (error) {
+      response.error = error;
+
+    }
 
     return response;
   }

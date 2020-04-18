@@ -5,7 +5,7 @@ resource "aws_lambda_function" "function" {
   runtime          = var.runtime
   filename         = var.file.path
   source_code_hash = var.file.hash
-  memory_size      = 512
+  memory_size      = var.memory_size
   timeout          = var.execution_timeout
 
   environment {

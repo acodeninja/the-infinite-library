@@ -37,6 +37,12 @@ variable "file" {
   })
 }
 
+variable "memory_size" {
+  description = "The number of MB of RAM to give the lambda function"
+  type        = number
+  default     = 256
+}
+
 locals {
   kebab-prefix = "${var.app_name}-${var.app_stage}"
   slash-prefix = "${var.app_name}/${var.app_stage}"

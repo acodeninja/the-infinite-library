@@ -31,7 +31,7 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
         }
       });
     }),
-    'DynamoDB.query': jest.fn(async () => ({
+    'DynamoDB.scan': jest.fn(async () => ({
       Items: [{
         Author: {S: 'V. Anton Spraul'},
         Title: {S: 'Think Like a Programmer'},
@@ -103,7 +103,7 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
             Type: 'String',
             Value: JSON.stringify({
               storage: {
-                data: {
+                public: {
                   bucket: 'the-infinite-library-test-data',
                   authors: 'public/data/authors.json',
                   books: 'public/data/books.json'

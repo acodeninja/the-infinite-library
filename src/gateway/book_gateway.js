@@ -104,12 +104,12 @@ export default class BookGateway extends BaseGateway {
     return book;
   }
 
-  async query() {
+  async scan() {
     const AWS = this.container.get('aws');
     let results = [];
     let hasRecordsLeft = true;
 
-    const getAllBooks = async (params) => await (new AWS.DynamoDB).query({
+    const getAllBooks = async (params) => await (new AWS.DynamoDB).scan({
       ...params,
       TableName: await this.container.get('settings').get('storage.books.data.table'),
     }).promise();

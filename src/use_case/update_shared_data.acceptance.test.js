@@ -15,7 +15,7 @@ describe('updating the shared data file', () => {
 
       expect(response).toHaveProperty('error', null);
 
-      expect(getMock('DynamoDB.query')).toHaveBeenCalledWith({
+      expect(getMock('DynamoDB.scan')).toHaveBeenCalledWith({
         TableName: 'the-infinite-library-test-books'
       }, expect.any(Function));
 
@@ -78,7 +78,7 @@ describe('updating the shared data file', () => {
     it('updates the books data with an empty array', async () => {
       const container = makeContainer();
       const getMock = addAWSMocksToContainer(container, {
-        'DynamoDB.query': jest.fn(async (params) => ({
+        'DynamoDB.scan': jest.fn(async (params) => ({
           Items: [],
           TableName: params.TableName,
         })),
@@ -90,7 +90,7 @@ describe('updating the shared data file', () => {
 
       expect(response).toHaveProperty('error', null);
 
-      expect(getMock('DynamoDB.query')).toHaveBeenCalledWith({
+      expect(getMock('DynamoDB.scan')).toHaveBeenCalledWith({
         TableName: 'the-infinite-library-test-books'
       }, expect.any(Function));
 

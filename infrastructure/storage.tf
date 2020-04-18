@@ -1,5 +1,5 @@
-resource "aws_s3_bucket" "data" {
-  bucket = "${local.kebab-prefix}-data"
+resource "aws_s3_bucket" "public" {
+  bucket = "${local.kebab-prefix}-public"
 
   tags = {
     Name  = var.name
@@ -7,33 +7,33 @@ resource "aws_s3_bucket" "data" {
   }
 }
 
-resource "aws_iam_policy" "allow_reading_data_bucket" {
-  name   = "${local.kebab-prefix}-${var.name}-data-bucket-read"
-  policy = data.aws_iam_policy_document.allow_reading_data_bucket.json
+resource "aws_iam_policy" "allow_reading_public_bucket" {
+  name   = "${local.kebab-prefix}-public-bucket-read"
+  policy = data.aws_iam_policy_document.allow_reading_public_bucket.json
 }
 
-data "aws_iam_policy_document" "allow_reading_data_bucket" {
+data "aws_iam_policy_document" "allow_reading_public_bucket" {
   statement {
     effect = "Allow"
     actions = [
       "s3:GetObject",
     ]
-    resources = ["${aws_s3_bucket.data.arn}/*", aws_s3_bucket.data.arn]
+    resources = ["${aws_s3_bucket.public.arn}/*", aws_s3_bucket.public.arn]
   }
 }
 
-resource "aws_iam_policy" "allow_writing_data_bucket" {
-  name   = "${local.kebab-prefix}-${var.name}-data-bucket-write"
-  policy = data.aws_iam_policy_document.allow_writing_data_bucket.json
+resource "aws_iam_policy" "allow_writing_public_bucket" {
+  name   = "${local.kebab-prefix}-public-bucket-write"
+  policy = data.aws_iam_policy_document.allow_writing_public_bucket.json
 }
 
-data "aws_iam_policy_document" "allow_writing_data_bucket" {
+data "aws_iam_policy_document" "allow_writing_public_bucket" {
   statement {
     effect = "Allow"
     actions = [
       "s3:PutObject",
     ]
-    resources = ["${aws_s3_bucket.data.arn}/*", aws_s3_bucket.data.arn]
+    resources = ["${aws_s3_bucket.public.arn}/*", aws_s3_bucket.public.arn]
   }
 }
 
@@ -47,7 +47,7 @@ resource "aws_s3_bucket" "uploads" {
 }
 
 resource "aws_iam_policy" "allow_reading_uploads_bucket" {
-  name   = "${local.kebab-prefix}-${var.name}-uploads-bucket-read"
+  name   = "${local.kebab-prefix}-uploads-bucket-read"
   policy = data.aws_iam_policy_document.allow_reading_uploads_bucket.json
 }
 
@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "allow_reading_uploads_bucket" {
 }
 
 resource "aws_iam_policy" "allow_writing_uploads_bucket" {
-  name   = "${local.kebab-prefix}-${var.name}-uploads-bucket-write"
+  name   = "${local.kebab-prefix}-uploads-bucket-write"
   policy = data.aws_iam_policy_document.allow_writing_uploads_bucket.json
 }
 
@@ -86,7 +86,7 @@ resource "aws_s3_bucket" "books" {
 }
 
 resource "aws_iam_policy" "allow_reading_books_bucket" {
-  name   = "${local.kebab-prefix}-${var.name}-books-bucket-read"
+  name   = "${local.kebab-prefix}-books-bucket-read"
   policy = data.aws_iam_policy_document.allow_reading_books_bucket.json
 }
 
@@ -101,7 +101,7 @@ data "aws_iam_policy_document" "allow_reading_books_bucket" {
 }
 
 resource "aws_iam_policy" "allow_writing_books_bucket" {
-  name   = "${local.kebab-prefix}-${var.name}-books-bucket-write"
+  name   = "${local.kebab-prefix}-books-bucket-write"
   policy = data.aws_iam_policy_document.allow_writing_books_bucket.json
 }
 
@@ -139,7 +139,7 @@ resource "aws_dynamodb_table" "books" {
 }
 
 resource "aws_iam_policy" "allow_reading_books_table" {
-  name   = "${local.kebab-prefix}-${var.name}-books-table-read"
+  name   = "${local.kebab-prefix}-books-table-read"
   policy = data.aws_iam_policy_document.allow_reading_books_table.json
 }
 
@@ -148,13 +148,14 @@ data "aws_iam_policy_document" "allow_reading_books_table" {
     effect = "Allow"
     actions = [
       "dynamodb:GetItem",
+      "dynamodb:Scan",
     ]
     resources = [aws_dynamodb_table.books.arn]
   }
 }
 
 resource "aws_iam_policy" "allow_writing_books_table" {
-  name   = "${local.kebab-prefix}-${var.name}-books-table-write"
+  name   = "${local.kebab-prefix}-books-table-write"
   policy = data.aws_iam_policy_document.allow_writing_books_table.json
 }
 
