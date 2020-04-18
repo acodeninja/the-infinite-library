@@ -92,6 +92,9 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
     'S3.putObject': jest.fn(async () => {
 
     }),
+    'S3.deleteObject': jest.fn(async () => {
+
+    }),
     'S3.upload': jest.fn(async () => {
 
     }),
@@ -103,6 +106,10 @@ export const addAWSMocksToContainer = (container, customMocks = {}) => {
             Type: 'String',
             Value: JSON.stringify({
               storage: {
+                uploads: {
+                  bucket: 'the-infinite-library-test-uploads',
+                  books: 'uploads/books/'
+                },
                 public: {
                   bucket: 'the-infinite-library-test-data',
                   authors: 'public/data/authors.json',

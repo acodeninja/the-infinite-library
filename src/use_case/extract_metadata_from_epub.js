@@ -28,10 +28,10 @@ export default class ExtractMetadataFromEpub extends BaseUseCase {
 
       const parseResult = await parseEpub(request.file);
 
-      const {info: {author, title}} = parseResult;
+      let {info: {author, title}} = parseResult;
 
       response.author = author;
-      response.title = title;
+      response.title = title._ ?? title;
     } catch (error) {
       response.error = error;
 

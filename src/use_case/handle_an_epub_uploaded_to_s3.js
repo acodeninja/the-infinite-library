@@ -65,6 +65,12 @@ export default class HandleEPubUploadedToS3 extends BaseUseCase {
         book.files.push(bookFile);
 
         recordResponse.putResponse = await bookGateway.put(book);
+
+        await (new AWS.S3).deleteObject({
+          Bucket,
+          Key,
+        }).promise();
+
       } catch (error) {
         recordResponse.error = error;
       }

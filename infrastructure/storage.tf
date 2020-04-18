@@ -76,6 +76,21 @@ data "aws_iam_policy_document" "allow_writing_uploads_bucket" {
   }
 }
 
+resource "aws_iam_policy" "allow_deleting_uploads_bucket" {
+  name   = "${local.kebab-prefix}-uploads-bucket-delete"
+  policy = data.aws_iam_policy_document.allow_deleting_uploads_bucket.json
+}
+
+data "aws_iam_policy_document" "allow_deleting_uploads_bucket" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:DeleteObject",
+    ]
+    resources = ["${aws_s3_bucket.uploads.arn}/*", aws_s3_bucket.uploads.arn]
+  }
+}
+
 resource "aws_s3_bucket" "books" {
   bucket = "${local.kebab-prefix}-books"
 

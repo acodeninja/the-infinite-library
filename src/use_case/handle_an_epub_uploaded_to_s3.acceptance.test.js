@@ -111,6 +111,11 @@ describe('handling an epub file uploaded to an s3 bucket', () => {
       Key: expect.stringContaining('public/'),
     }, expect.anything());
 
+    expect(getMock('S3.deleteObject')).toHaveBeenCalledWith({
+      Bucket: 'test-bucket',
+      Key: 'test-file',
+    }, expect.anything());
+
     expect(response.responses.map(r => r.error)).toStrictEqual([null]);
   });
 

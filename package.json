@@ -21,7 +21,7 @@
       "build"
     ],
     "setupFiles": [
-      "<rootDir>/setupJest.js"
+      "<rootDir>/setup_jest.js"
     ]
   },
   "eslintConfig": {

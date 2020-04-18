@@ -3,6 +3,10 @@ resource "aws_ssm_parameter" "settings" {
   type = "String"
   value = jsonencode({
     storage = {
+      uploads = {
+        bucket = aws_s3_bucket.uploads.bucket
+        books  = "uploads/books/"
+      }
       public = {
         bucket  = aws_s3_bucket.public.bucket
         authors = "public/data/authors.json"

@@ -14,12 +14,13 @@ module "handle_epub_uploaded_to_s3" {
 
 resource "aws_iam_role_policy_attachment" "handle_epub_uploaded_to_s3" {
   for_each = {
-    reading_uploads_bucket = aws_iam_policy.allow_reading_uploads_bucket.arn
-    writing_books_bucket   = aws_iam_policy.allow_writing_books_bucket.arn
-    reading_books_bucket   = aws_iam_policy.allow_reading_books_bucket.arn
-    reading_books_table    = aws_iam_policy.allow_reading_books_table.arn
-    writing_books_table    = aws_iam_policy.allow_writing_books_table.arn
-    reading_settings_param = aws_iam_policy.allow_reading_settings_param.arn
+    reading_uploads_bucket  = aws_iam_policy.allow_reading_uploads_bucket.arn
+    deleting_uploads_bucket = aws_iam_policy.allow_deleting_uploads_bucket.arn
+    writing_books_bucket    = aws_iam_policy.allow_writing_books_bucket.arn
+    reading_books_bucket    = aws_iam_policy.allow_reading_books_bucket.arn
+    reading_books_table     = aws_iam_policy.allow_reading_books_table.arn
+    writing_books_table     = aws_iam_policy.allow_writing_books_table.arn
+    reading_settings_param  = aws_iam_policy.allow_reading_settings_param.arn
   }
   role       = module.handle_epub_uploaded_to_s3.execution_role.name
   policy_arn = each.value
