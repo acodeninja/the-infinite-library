@@ -77,7 +77,7 @@
   },
   "dependencies": {
     "@gxl/epub-parser": "^2.0.2",
-    "aws-sdk": "^2.655.0",
+    "aws-sdk": "^2.814.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
     "lodash.merge": "^4.6.2",
